@@ -1,0 +1,5 @@
+# ignore the following
+**/bin/**
+**/target/**
+.vscode
+.settings
