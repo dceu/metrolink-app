@@ -1,9 +1,9 @@
 package metrolink.entity;
 
-class Stop{
+public class Stop{
     private String name;
 
-    private Stop() {};
+    public Stop() {};
     private Stop stop;
 
     public Stop getInstance(){
@@ -20,6 +20,11 @@ class Stop{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString(){
+        return name;
     }
 
     
