@@ -1,0 +1,13 @@
+queries.txt
+
+1. query to list all of the metrolink stations
+
+SELECT DISTINCT(*)  FROM [metrolink_stations] WHERE stop_name LIKE '%METROLINK STATION%';
+
+2. list the total number of metrolink stations
+
+SELECT COUNT(DISTINCT stop_name) FROM [metrolink_stops] WHERE stop_name LIKE '%METROLINK STAION%';
+
+3. list of all the arrival times at the Shrewsbury Metrolink Stations.
+
+SELECT arrival_time FROM [metrolink_stops] WHERE stop_name LIKE '%SHREWSBURY METROLINK STATION%';
