@@ -4,6 +4,9 @@ import metrolink.AppOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
+import java.time.*;
+import java.time.format.*;
+
 
 import metrolink.entity.Stop;
 
@@ -12,7 +15,9 @@ public class SqliteJDBCDao implements MetrolinkDao {
     private SqliteJDBCDao(){};
     public static SqliteJDBCDao getInstance(){
         return instance;
-    };
+    }
+
+    private static DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm:ss").withResolverStyle(ResolverStyle.LENIENT);
 
     public static final String JDBC_SQLITE_METROLINK_DB = 
         "jdbc:sqlite:C:/Users/Donovan/Documents/GitHub/metrolink-app/metrolink-app/src/main/resources/metrolink.db";
@@ -64,5 +69,25 @@ public class SqliteJDBCDao implements MetrolinkDao {
             throw new RuntimeException("Unable to find the JDBC driver class", e);
         }
         return DriverManager.getConnection(JDBC_SQLITE_METROLINK_DB);
+    }
+
+    public static List<LocalDateTime> getArrivalTimes(Stop s) {
+        appOutput.print("Finding arrival times for...");
+        System.out.print(s.getName());
+        try (Connection connection = getConnection();) {
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT "+
+                "arrival_time FROM [metrolink_stops] WHERE stop_name LIKE \"%"+ s.getName() +"%\";");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            List<LocalDateTime> arrivalTimes = new ArrayList<>();
+            while (resultSet.next()){
+                LocalDateTime time;
+                time = LocalDateTime.parse(resultSet.getString("arrival_time"), format);
+                arrivalTimes.add(time);
+            }
+            return arrivalTimes;
+        } catch (SQLException e){
+            throw new RuntimeException("Error retrieving stops", e);
+        }
+
     }
 }
