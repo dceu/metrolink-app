@@ -1,10 +1,15 @@
 package metrolink.entity;
 
+import java.util.List;
+import java.time.*;
+
 public class Stop{
     private String name;
+    private List<LocalDateTime> arrivalTimes;
 
     public Stop() {};
     private Stop stop;
+
 
     public Stop getInstance(){
         if (stop == null){
@@ -20,6 +25,16 @@ public class Stop{
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    
+
+    public List<LocalDateTime> getArrivalTimes(){
+        return this.arrivalTimes;
+    }
+
+    public void setArrivalTimes(List<LocalDateTime> t){
+        this.arrivalTimes = t;
     }
 
     @Override
