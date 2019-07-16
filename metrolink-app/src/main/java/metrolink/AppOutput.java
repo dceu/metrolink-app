@@ -15,7 +15,7 @@ public class AppOutput{
 
     
 
-    public void print(String s){
+    public static void print(String s){
         System.out.println(s);
     }
     
@@ -23,5 +23,12 @@ public class AppOutput{
         System.out.println(s.toString());
     }
 
+    public static void prompt(){
+        System.out.println("What station are you currently at?");
+    }
+
+    public void countDown(){
+        System.out.println("The Next train arrives at...");
+    }
 
 }
