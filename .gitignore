@@ -354,3 +354,6 @@ MigrationBackup/
 **/.settings
 **/.class
 **/.gitattributes
+.class
+metrolink-app/target/classes/metrolink/CommandLineApp.class
+metrolink-app/target/classes/metrolink/entity/Stop.class
