@@ -6,6 +6,7 @@ import java.util.List;
 import java.sql.*;
 import java.time.*;
 import java.time.format.*;
+import java.util.Collections;
 
 
 import metrolink.entity.Stop;
@@ -81,9 +82,19 @@ public class SqliteJDBCDao implements MetrolinkDao {
             List<LocalDateTime> arrivalTimes = new ArrayList<>();
             while (resultSet.next()){
                 LocalDateTime time;
-                time = LocalDateTime.parse(resultSet.getString("arrival_time"), format);
+                String arrivalString = resultSet.getString("arrival_time");
+                String[] arrivalSplit = arrivalString.split(":");
+                int hr = Integer.parseInt(arrivalSplit[0]);
+                if (hr == 24) hr = 0;
+                int min = Integer.parseInt(arrivalSplit[1]);
+                int sec = Integer.parseInt(arrivalSplit[2]);
+                time = LocalDate.now().atTime(hr, min, sec);
+                //System.out.println("adding arrivalTime " + time.toString() );
+                //time = LocalDate.now().atTime(LocalDateTime.parse(resultSet.getString("arrival_time"), format));
                 arrivalTimes.add(time);
             }
+            Collections.sort(arrivalTimes);
+            // System.out.println("Sorted arrival times: " + arrivalTimes);
             return arrivalTimes;
         } catch (SQLException e){
             throw new RuntimeException("Error retrieving stops", e);
