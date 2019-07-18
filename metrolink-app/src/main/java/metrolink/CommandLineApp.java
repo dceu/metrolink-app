@@ -1,6 +1,5 @@
 package metrolink;
 import metrolink.dao.*;
-import java.util.Scanner;
 import metrolink.entity.Stop;
 import metrolink.ArrivalCalc;;
 
@@ -22,7 +21,7 @@ public class CommandLineApp
         Stop n = new Stop(); // move to factory class
         n.setName(s);
 
-        ArrivalCalc.countdown(n);
+        AppOutput.print(ArrivalCalc.countdown(n));
     }
 
 
@@ -32,11 +31,8 @@ public class CommandLineApp
         System.out.println( "Hello, this is a command line application to access generated MetroLink data via SQLite and SQLiteJDBC." );
         System.out.println(
             "This demonstration will be limited to accessing stop_name and arrival_time fields from the metrolink_stop view");
-        fetchMetro();
+        //fetchMetro();
         prompt();
-        Scanner reader = new Scanner(System.in);
-        String s = reader.nextLine();
-        reader.close();
-        countdown(s);
+        countdown(AppInput.inputStation());
         }
 }
