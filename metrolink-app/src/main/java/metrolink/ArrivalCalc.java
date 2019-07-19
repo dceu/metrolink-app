@@ -32,13 +32,14 @@ public class ArrivalCalc{
 
     public static LocalDateTime getArrivalTime(Stop s){
         s.setArrivalTimes(SqliteJDBCDao.getArrivalTimes(s));
-        List<LocalDateTime> arrivalTimes = s.getArrivalTimes();
+        Map<LocalDateTime, String> arrivalTimes = s.getArrivalTimes();
         LocalDateTime current = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         AppOutput.print("The time is: " + current.toString());
-        AppOutput.print("\n searching for arrival time from" + arrivalTimes);
-        String nextArrival = "";
+        // AppOutput.print("\n searching for arrival time from" + arrivalTimes);
+        StringBuffer nextArrival = new StringBuffer();
+        LocalDateTime nextTime = current;
         // sort s.arrivalTimes chronologically
-        for (LocalDateTime t : arrivalTimes) {
+        for (LocalDateTime t : arrivalTimes.keySet()) {
             if (current.isAfter(t))  {
                 System.out.println("the " + t + " train has passed.");
                 continue;}
@@ -47,11 +48,12 @@ public class ArrivalCalc{
                 continue;
             }
             else {
-            nextArrival = t.toString();
+            nextTime = t;
+            nextArrival.append(arrivalTimes.get(t) + " @ " + t.toString());
             AppOutput.print("Next Arriving Train is at: " + nextArrival);
             break;
             }
         }
-        return LocalDateTime.parse(nextArrival);
+        return nextTime;
     }
 }
