@@ -1,11 +1,11 @@
 package metrolink.entity;
 
-import java.util.List;
+import java.util.*;
 import java.time.*;
 
 public class Stop{
     private String name;
-    private List<LocalDateTime> arrivalTimes;
+    private Map<LocalDateTime, String> arrivalTimes = new TreeMap<LocalDateTime, String>();
 
     public Stop() {};
     private Stop stop;
@@ -29,11 +29,11 @@ public class Stop{
 
     
 
-    public List<LocalDateTime> getArrivalTimes(){
+    public Map<LocalDateTime, String> getArrivalTimes(){
         return this.arrivalTimes;
     }
 
-    public void setArrivalTimes(List<LocalDateTime> t){
+    public void setArrivalTimes(Map<LocalDateTime, String> t){
         this.arrivalTimes = t;
     }
 
