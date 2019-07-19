@@ -1,12 +1,11 @@
 package metrolink.dao;
 
 import metrolink.AppOutput;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.sql.*;
 import java.time.*;
 import java.time.format.*;
-import java.util.Collections;
+
 
 
 import metrolink.entity.Stop;
@@ -72,16 +71,18 @@ public class SqliteJDBCDao implements MetrolinkDao {
         return DriverManager.getConnection(JDBC_SQLITE_METROLINK_DB);
     }
 
-    public static List<LocalDateTime> getArrivalTimes(Stop s) {
+    public static Map<LocalDateTime, String> getArrivalTimes(Stop s) {
         appOutput.print("Finding arrival times for...");
         System.out.print(s.getName());
         try (Connection connection = getConnection();) {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT "+
-                "arrival_time FROM [metrolink_stops] WHERE stop_name LIKE \"%"+ s.getName() +"%\";");
+                "arrival_time, trip_headsign FROM [metrolink_stops] WHERE stop_name LIKE \"%"+ s.getName() +"%\";");
             ResultSet resultSet = preparedStatement.executeQuery();
-            List<LocalDateTime> arrivalTimes = new ArrayList<>();
+            Map<LocalDateTime, String> arrivalTimes = new TreeMap<LocalDateTime, String>();
             while (resultSet.next()){
+                 //TODO: move logic to another class
                 LocalDateTime time;
+                String headSign;
                 String arrivalString = resultSet.getString("arrival_time");
                 String[] arrivalSplit = arrivalString.split(":");
                 int hr = Integer.parseInt(arrivalSplit[0]);
@@ -89,11 +90,14 @@ public class SqliteJDBCDao implements MetrolinkDao {
                 int min = Integer.parseInt(arrivalSplit[1]);
                 int sec = Integer.parseInt(arrivalSplit[2]);
                 time = LocalDate.now().atTime(hr, min, sec);
+                headSign = resultSet.getString("trip_headsign");
                 //System.out.println("adding arrivalTime " + time.toString() );
                 //time = LocalDate.now().atTime(LocalDateTime.parse(resultSet.getString("arrival_time"), format));
-                arrivalTimes.add(time);
+
+
+                arrivalTimes.put(time, headSign);
             }
-            Collections.sort(arrivalTimes);
+            
             // System.out.println("Sorted arrival times: " + arrivalTimes);
             return arrivalTimes;
         } catch (SQLException e){
