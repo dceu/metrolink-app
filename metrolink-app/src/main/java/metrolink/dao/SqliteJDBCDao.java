@@ -4,7 +4,9 @@ import metrolink.AppOutput;
 import java.util.*;
 import java.sql.*;
 import java.time.*;
-import java.time.format.*;
+import metrolink.Parser;
+import metrolink.Working;
+// import java.time.format.*;
 
 
 
@@ -17,15 +19,19 @@ public class SqliteJDBCDao implements MetrolinkDao {
         return instance;
     }
 
-    private static DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm:ss").withResolverStyle(ResolverStyle.LENIENT);
+    private static AppOutput out = AppOutput.getInstance();
+    private static Parser parser = Parser.getInstance();
+    private static Working working = Working.getInstance();
 
-    public static final String JDBC_SQLITE_METROLINK_DB = 
+    // private static DateTimeFormatter format = DateTimeFormatter.ofPattern("HH:mm:ss").withResolverStyle(ResolverStyle.LENIENT);
+
+    public static final String JDBC_SQLITE_METROLINK_DB =
         "jdbc:sqlite:C:/Users/Donovan/Documents/GitHub/metrolink-app/metrolink-app/src/main/resources/metrolink.db";
     public static final String ORG_SQLITE_JDBC = "org.sqlite.JDBC";
 
     private static AppOutput appOutput = AppOutput.getInstance();
 
-    
+
     public List<Stop> getStopsAllStops() {
         appOutput.print("Fetching all stops...");
         try (Connection connection = getConnection();) {
@@ -59,7 +65,7 @@ public class SqliteJDBCDao implements MetrolinkDao {
             return stops;
         } catch (SQLException e){
             throw new RuntimeException("Error retrieving stops", e);
-        }        
+        }
     }
 
     private static Connection getConnection() throws SQLException {
@@ -72,33 +78,41 @@ public class SqliteJDBCDao implements MetrolinkDao {
     }
 
     public static Map<LocalDateTime, String> getArrivalTimes(Stop s) {
-        appOutput.print("Finding arrival times for...");
-        System.out.print(s.getName());
+        out.findingArrival(s);
+        //out.printStop(s);
         try (Connection connection = getConnection();) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT "+
-                "arrival_time, trip_headsign FROM [metrolink_stops] WHERE stop_name LIKE \"%"+ s.getName() +"%\";");
+            PreparedStatement preparedStatement =
+                 connection.prepareStatement(
+                    "SELECT "+
+                    "DISTINCT "+
+                    "arrival_time, trip_headsign "+
+                    "FROM "+
+                    "[metrolink_stops] " +
+                    "WHERE " +
+                    "stop_name "+
+                    "LIKE "+
+                    "\"%"+ s.getName() +"%\";" // make a query generator
+                    );
+
             ResultSet resultSet = preparedStatement.executeQuery();
+            out.print("TreeMapping arrival times");
             Map<LocalDateTime, String> arrivalTimes = new TreeMap<LocalDateTime, String>();
+            int counter = 0;
             while (resultSet.next()){
-                 //TODO: move logic to another class
-                LocalDateTime time;
+                
+                LocalDateTime arrivalTime;
                 String headSign;
                 String arrivalString = resultSet.getString("arrival_time");
-                String[] arrivalSplit = arrivalString.split(":");
-                int hr = Integer.parseInt(arrivalSplit[0]);
-                if (hr == 24) hr = 0;
-                int min = Integer.parseInt(arrivalSplit[1]);
-                int sec = Integer.parseInt(arrivalSplit[2]);
-                time = LocalDate.now().atTime(hr, min, sec);
+                arrivalTime = parser.arrivalTimeParse(arrivalString);
                 headSign = resultSet.getString("trip_headsign");
-                //System.out.println("adding arrivalTime " + time.toString() );
-                //time = LocalDate.now().atTime(LocalDateTime.parse(resultSet.getString("arrival_time"), format));
-
-
-                arrivalTimes.put(time, headSign);
+                arrivalTimes.put(arrivalTime, headSign);
+                counter++;
+                working.animation(counter + "");
+                
             }
-            
+
             // System.out.println("Sorted arrival times: " + arrivalTimes);
+            //out.print("\n...complete!");
             return arrivalTimes;
         } catch (SQLException e){
             throw new RuntimeException("Error retrieving stops", e);
