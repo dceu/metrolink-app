@@ -1,7 +1,9 @@
 package metrolink;
 import metrolink.dao.*;
 import metrolink.entity.Stop;
-import metrolink.ArrivalCalc;;
+import metrolink.ArrivalCalc;
+import java.lang.StringBuffer;
+import java.util.*;
 
 /**
  * Hello world!
@@ -9,30 +11,38 @@ import metrolink.ArrivalCalc;;
  */
 public class CommandLineApp 
 {
-    public static void fetchMetro(){
-        AppOutput.print(SqliteJDBCDao.getInstance().getStopsMetroLinkStops().toString());
+    static AppOutput out = AppOutput.getInstance();
+    static ArrivalCalc ac = ArrivalCalc.getInstance();
+    static AppInput in = AppInput.getInstance();
+
+    public void fetchMetro(){
+        String metroStops = SqliteJDBCDao.getInstance().getStopsMetroLinkStops().toString();
+        out.print(metroStops);
     }
 
-    public static void prompt(){
-        AppOutput.prompt();
+    public void prompt(){
+        out.prompt();
     }
 
     public static void countdown(String s){
         Stop n = new Stop(); // move to factory class
         n.setName(s);
+        StringBuffer countdownString = new StringBuffer(ac.countdown(n));
+        out.countDown(countdownString.toString());
+    }
 
-        AppOutput.print(ArrivalCalc.countdown(n));
+    private static String userInput(){
+        String input = in.inputStation();
+        return input;
     }
 
 
 
     public static void main( String[] args )
     {
-        System.out.println( "Hello, this is a command line application to access generated MetroLink data via SQLite and SQLiteJDBC." );
-        System.out.println(
-            "This demonstration will be limited to accessing stop_name and arrival_time fields from the metrolink_stop view");
-        //fetchMetro();
-        prompt();
-        countdown(AppInput.inputStation());
+        out.greetings();
+        out.about();
+        out.prompt();
+        countdown(userInput());
         }
 }
